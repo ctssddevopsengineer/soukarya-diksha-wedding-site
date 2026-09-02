@@ -7,8 +7,8 @@ const source = fs.readFileSync(new URL('../components/InsideRight.js', import.me
 
 test('event constants provide all reception values used by inside right', () => {
   for (const key of ['dateLabel', 'timeLabel', 'venueName', 'venueAddress', 'mapsUrl', 'start']) {
-    assert.equal(typeof EVENT[key], 'string');
-    assert.ok(EVENT[key].length > 0);
+    assert.strictEqual(typeof EVENT[key], 'string');
+    assert.ok(EVENT[key].toString().length > 0);
   }
 });
 
