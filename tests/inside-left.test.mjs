@@ -1,0 +1,46 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import { EVENT } from '../lib/event.mjs';
+
+const component = fs.readFileSync(new URL('../components/InsideLeft.js', import.meta.url), 'utf8');
+const css = fs.readFileSync(new URL('../app/globals.css', import.meta.url), 'utf8');
+
+test('inside-left copy is centralized in EVENT constants', () => {
+  assert.equal(EVENT.insideLeft.heading, 'With the Blessings of Our Families');
+  assert.ok(Array.isArray(EVENT.insideLeft.introLines));
+  assert.ok(Array.isArray(EVENT.insideLeft.closingLines));
+});
+
+test('InsideLeft reads all person-specific values from EVENT', () => {
+  assert.match(component, /EVENT\.groomName/);
+  assert.match(component, /EVENT\.brideName/);
+  assert.match(component, /EVENT\.families\.groom\.father/);
+  assert.match(component, /EVENT\.families\.groom\.mother/);
+  assert.match(component, /EVENT\.families\.bride\.father/);
+  assert.match(component, /EVENT\.families\.bride\.mother/);
+});
+
+test('InsideLeft reads all page copy from EVENT.insideLeft', () => {
+  assert.match(component, /EVENT\.insideLeft/);
+  assert.match(component, /copy\.heading/);
+  assert.match(component, /copy\.introLines/);
+  assert.match(component, /copy\.closingLines/);
+});
+
+test('InsideLeft uses the approved blank template without parchment text masks', () => {
+  assert.match(component, /inside-left-blank\.png/);
+  assert.doesNotMatch(css, /familyDynamicValue/);
+  assert.doesNotMatch(css, /parchment mask/i);
+});
+
+test('family headings remain highlighted and are not replaced by name overlays', () => {
+  assert.match(component, /EVENT\.families\.groom\.heading/);
+  assert.match(component, /EVENT\.families\.bride\.heading/);
+  assert.match(css, /\.familyBlock h3/);
+  assert.match(css, /color:\s*#721b24/);
+});
+
+test('exact monogram artwork is included as a dedicated asset', () => {
+  assert.match(component, /inside-left-monogram\.png/);
+});
