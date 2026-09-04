@@ -34,10 +34,11 @@ test('location QR uses the same public-path helper', () => {
   assert.match(insideRight, /withBasePath\('\/images\/location-qr\.png'\)/);
 });
 
-test('Next configuration accepts an explicit deployment base path', () => {
+test('Next configuration accepts an explicit deployment base path without shorthand', () => {
   const nextConfig = fs.readFileSync(new URL('../next.config.mjs', import.meta.url), 'utf8');
   assert.match(nextConfig, /NEXT_PUBLIC_BASE_PATH/);
-  assert.match(nextConfig, /basePath,/);
+  assert.match(nextConfig, /basePath:\s*basePath/);
+  assert.doesNotMatch(nextConfig, /^\s*basePath,\s*$/m);
   assert.match(nextConfig, /assetPrefix:/);
 });
 
