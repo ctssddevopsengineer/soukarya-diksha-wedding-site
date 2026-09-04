@@ -15,11 +15,34 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  set-environment:
+    runs-on: ubuntu-latest
+    outputs:
+      environment: ${{ steps.set-env.outputs.environment }}
+    steps:
+      - name: Check branch name and set environment variable
+        id: set-env
+        run: |
+          if [[ "${{ github.base_ref }}" == "development" ]]; then
+            echo "environment=unt" >> $GITHUB_OUTPUT
+          elif [[ "${{ github.base_ref }}" == "master" ]]; then
+            echo "environment=prd" >> $GITHUB_OUTPUT
+          elif [[ "${{ github.base_ref }}" == "release/**" ]]; then
+            echo "environment=uat" >> $GITHUB_OUTPUT
+          else
+            echo "This workflow only runs on development, master, or release branches."
+            exit 1
+          fi
+        
+      - name: Display environment variable
+        run: echo "Environment variable is set to ${{ steps.set-env.outputs.environment }}"
+        
   test-build:
     name: Tests and GitHub Pages-compatible build
     runs-on: ubuntu-latest
     timeout-minutes: 15
-
+    needs: set-environment
+    environment: ${{ needs.set-environment.outputs.environment }}
     steps:
       - name: Checkout
         uses: actions/checkout@v7
