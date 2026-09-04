@@ -31,7 +31,7 @@ test('InsideLeft reads all page copy from EVENT.insideLeft', () => {
 
 test('InsideLeft uses the approved blank template without parchment text masks', () => {
   assert.match(component, /getThemeAsset\(themeId, 'insideLeft'\)/);
-  assert.match(theme, /insideLeft:\s*`\/themes\/\$\{themeId\}\/inside-left\.png`/);
+  assert.match(theme, /insideLeft:\s*asset\(`\/themes\/\$\{themeId\}\/inside-left\.png`\)/);
   assert.doesNotMatch(css, /familyDynamicValue/);
   assert.doesNotMatch(css, /parchment mask/i);
 });
@@ -45,5 +45,5 @@ test('family headings remain highlighted and are not replaced by name overlays',
 
 test('exact monogram artwork is included as a dedicated asset', () => {
   assert.match(component, /getThemeAsset\(themeId, 'insideLeftMonogram'\)/);
-  assert.match(theme, /insideLeftMonogram:\s*insideLeftMonogram \? `\/themes\/\$\{themeId\}\/inside-left-monogram\.png` : ''/);
+  assert.match(theme, /insideLeftMonogram:\s*insideLeftMonogram \? asset\(`\/themes\/\$\{themeId\}\/inside-left-monogram\.png`\) : ''/);
 });

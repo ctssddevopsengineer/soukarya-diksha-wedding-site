@@ -35,7 +35,8 @@ let source = fs.readFileSync(target, 'utf8');
 for (const key of keys) {
   const token = `{{${key}}}`;
   const value = String(process.env[key]);
-  source = source.split(token).join(value);
+  const escapedValue = JSON.stringify(value).slice(1, -1);
+  source = source.split(token).join(escapedValue);
 }
 
 const unresolved = [...source.matchAll(/{{([A-Z0-9_]+)}}/g)].map((match) => match[1]);
