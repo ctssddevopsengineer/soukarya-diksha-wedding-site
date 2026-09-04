@@ -30,3 +30,11 @@ test('InsideRight consumes event constants instead of hardcoding reception value
 
   assert.doesNotMatch(source, />Dinner</i);
 });
+
+
+test('front-cover copy is centralized for dynamic theme rendering', () => {
+  assert.equal(EVENT.frontCover.heading, 'Reception');
+  assert.equal(EVENT.frontCover.subheading, 'Invitation');
+  assert.ok(Array.isArray(EVENT.frontCover.closingLines));
+  assert.ok(EVENT.frontCover.closingLines.length >= 2);
+});

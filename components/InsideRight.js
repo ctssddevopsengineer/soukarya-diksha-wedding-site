@@ -1,13 +1,16 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import CalendarButtons from '@/components/CalendarButtons';
 import Countdown from '@/components/Countdown';
 import { EVENT } from '@/lib/event.mjs';
+import { getTheme, getThemeAsset } from '@/lib/theme.mjs';
 
 const HOVER_CLOSE_DELAY_MS = 180;
 
-export default function InsideRight() {
+export default function InsideRight({ themeId }) {
+  const theme = getTheme(themeId);
+  const insideRightMonogram = getThemeAsset(themeId, 'insideRightMonogram');
   const [isPinnedOpen, setIsPinnedOpen] = useState(false);
   const [isHoverOpen, setIsHoverOpen] = useState(false);
   const closeTimerRef = useRef(null);
@@ -45,14 +48,38 @@ export default function InsideRight() {
     setIsHoverOpen(false);
   }
 
+  useEffect(() => {
+    if (!isLocationOpen) return undefined;
+
+    function handleEscape(event) {
+      if (event.key === 'Escape') closeLocation();
+    }
+
+    window.addEventListener('keydown', handleEscape);
+    return () => window.removeEventListener('keydown', handleEscape);
+  }, [isLocationOpen]);
+
+  useEffect(() => () => clearCloseTimer(), []);
+
   return (
     <article className="invitePage exactInsideRight" aria-label="Inside right — reception details">
       {/* Approved template is preserved as the visual base. */}
       <img
         className="exactInsideRightArtwork"
-        src="/images/inside-right-reference.png"
+        src={getThemeAsset(themeId, 'insideRight')}
         alt="Ornate Reception Details template with Bengali and Nepali cultural artwork"
       />
+
+      {insideRightMonogram && (
+        <>
+          <img
+            className="insideRightThemeMonogram"
+            src={insideRightMonogram}
+            alt={`${EVENT.groomName} and ${EVENT.brideName} monogram`}
+          />
+          <h2 className="insideRightDynamicTitle">&ensp;Reception<br />Details</h2>
+        </>
+      )}
 
       {/* All reception information is rendered from EVENT constants inside the Reception Details area. */}
       <section className="receptionDetailsOverlay" aria-label="Reception details">
@@ -102,6 +129,18 @@ export default function InsideRight() {
         </div>
       </section>
 
+      {theme.dynamicLocationLabel && (
+        <span className={`insideRightDynamicLocationLabel ${theme.showLocationIcon ? 'withLocationIcon' : ''}`} aria-hidden="true">
+          {theme.showLocationIcon && (
+            <svg className="insideRightLocationIcon" viewBox="0 0 24 24" focusable="false">
+              <path d="M12 22s7-6.1 7-13A7 7 0 1 0 5 9c0 6.9 7 13 7 13Z" />
+              <circle cx="12" cy="9" r="2.4" />
+            </svg>
+          )}
+          <span>Location /<br />Map</span>
+        </span>
+      )}
+
       {/* Location / Map medallion: hover/focus on desktop, click/tap on all devices. */}
       <button
         type="button"
@@ -123,6 +162,8 @@ export default function InsideRight() {
         id="location-details-popover"
         className={`locationDetailsPopover ${isLocationOpen ? 'open' : ''}`}
         aria-hidden={!isLocationOpen}
+        role="dialog"
+        aria-label="Reception location details"
         onMouseEnter={openOnHover}
         onMouseLeave={scheduleHoverClose}
       >

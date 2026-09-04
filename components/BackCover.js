@@ -1,28 +1,64 @@
 import ContactDetails from '@/components/ContactDetails';
 import { EVENT } from '@/lib/event.mjs';
+import { getThemeAsset } from '@/lib/theme.mjs';
 
-export default function BackCover() {
+export default function BackCover({ themeId }) {
+  const copy = EVENT.backCover;
+  const backMonogram = getThemeAsset(themeId, 'backMonogram');
+
   return (
-    <article className="invitePage parchmentPage backCover" aria-label="Back cover — contact details">
-      <div className="pageContent backContent">
-        <div className="monogram large">S <span>&amp;</span> D</div>
-        <p className="scriptLine">With love and gratitude</p>
-        <h2>Thank you for being part of our journey.</h2>
-        <div className="divider"><span>◆</span></div>
+    <article
+      className="invitePage heritageBackCover"
+      aria-label="Back cover — Bengal and Nepal heritage gratitude page"
+    >
+      <img
+        className="heritageBackArtwork"
+        src={getThemeAsset(themeId, 'back')}
+        alt="Bengali riverside temple and boats blending into Himalayan mountains and a Nepali pagoda"
+      />
 
-        <p className="eyebrow">Contact Details</p>
-        <p className="muted centered">
-          For venue directions or reception-related assistance, please contact our families.
+      <div className="heritageBackContent">
+        {backMonogram && (
+          <img
+            className="heritageBackMonogram"
+            src={backMonogram}
+            alt={`${EVENT.groomName} and ${EVENT.brideName} monogram`}
+          />
+        )}
+
+        <section className="heritageBackIntro" aria-labelledby="back-gratitude-title">
+          <h2 id="back-gratitude-title">{copy.heading}</h2>
+          <div className="heritageGoldRule" aria-hidden="true"><span>✥</span></div>
+          <p className="heritageBackMessage">
+            {copy.messageLines.map((line, index) => (
+              <span key={`${line}-${index}`}>{line}</span>
+            ))}
+          </p>
+        </section>
+
+        <p className="heritageCoupleNames">
+          <span>{EVENT.groomName}</span>
+          <b>&amp;</b>
+          <span>{EVENT.brideName}</span>
         </p>
-        <ContactDetails contacts={EVENT.contacts} />
 
-        <div className="techSignature">
-          <span className="tapGlyph" aria-hidden="true">◉</span>
-          <strong>Tap · Scan · Celebrate</strong>
-          <p>NFC + QR enabled digital invitation</p>
-        </div>
+        <div className="heritageGoldRule heritageNamesRule" aria-hidden="true"><span>✥</span></div>
 
-        <p className="closingLine">A Celebration of Two Cultures, One Beautiful Journey</p>
+        <p className="heritageJourneyMessage">
+          {copy.journeyLines.map((line, index) => (
+            <span key={`${line}-${index}`}>{line}</span>
+          ))}
+        </p>
+
+        <div className="heritageLotusMark" aria-hidden="true">♧</div>
+
+        <section className="heritageAssistance" aria-labelledby="back-assistance-title">
+          <div className="heritageSectionRule" aria-hidden="true" />
+          <h3 id="back-assistance-title"><span aria-hidden="true">✤</span>{copy.assistanceHeading}<span aria-hidden="true">✤</span></h3>
+          <ContactDetails contacts={EVENT.contacts} />
+        </section>
+
+
       </div>
     </article>
   );

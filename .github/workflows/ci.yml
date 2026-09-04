@@ -2,50 +2,59 @@ name: CI
 
 on:
   pull_request:
-    branches:
-      - main
-      - development
+    types: [opened, synchronize, reopened]
+    branches: [master, development, release/**]
+  push:
+    branches: [master, development, release/**]
 
 permissions:
   contents: read
 
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  validate:
+  test-build:
+    name: Unit tests and build
     runs-on: ubuntu-latest
+    timeout-minutes: 15
 
     steps:
       - name: Checkout
         uses: actions/checkout@v7
 
-      - name: Setup Node
+      - name: Setup Node.js
         uses: actions/setup-node@v7
         with:
           node-version: 24
 
-      - name: Get npm cache directory
-        id: npm-cache-dir
-        run: echo "dir=$(npm config get cache)" >> $GITHUB_OUTPUT
-
-      - uses: actions/cache@v5
+      - name: Cache dependencies
+        id: cache-dependencies
+        uses: actions/cache@v5
         with:
-          key: npm-${{ runner.os }}-hashFiles('**/package.json')
-          path: ${{ steps.npm-cache-dir.outputs.dir }}
+          key: npm-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+          path: ~/.npm
           restore-keys: |
-            npm-${{runner.os }}-
-            npm-
+            npm-${{ runner.os }}-
+            npm
 
       - name: Install dependencies
-        run: npm install
+        run: |
+          if [ -f package-lock.json ]; then npm ci; else npm install; fi
 
-      - name: Run audit
-        run: npm audit fix --force
-
-      - name: Run tests
+      - name: Unit tests
         run: npm test
 
-      - name: Build application
+      - name: Build
         run: npm run build
 
-      - uses: actions/upload-pages-artifact@v5
+      - name: List workspace files
+        run: ls -R
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v7
         with:
-          path: ./out
+          name: build-artifacts
+          path: |
+            dist/

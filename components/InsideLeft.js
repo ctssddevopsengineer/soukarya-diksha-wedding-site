@@ -1,7 +1,9 @@
 import { EVENT } from '@/lib/event.mjs';
+import { getThemeAsset } from '@/lib/theme.mjs';
 
-export default function InsideLeft() {
+export default function InsideLeft({ themeId }) {
   const copy = EVENT.insideLeft;
+  const insideLeftMonogram = getThemeAsset(themeId, 'insideLeftMonogram');
 
   return (
     <article
@@ -10,16 +12,18 @@ export default function InsideLeft() {
     >
       <img
         className="familyBlessingsArtwork"
-        src="/images/inside-left-blank.png"
+        src={getThemeAsset(themeId, 'insideLeft')}
         alt="Ornate Bengali and Nepali family blessings invitation background"
       />
 
       <div className="familyBlessingsContent">
-        <img
-          className="familyMonogramArtwork"
-          src="/images/inside-left-monogram.png"
-          alt={`${EVENT.groomName} and ${EVENT.brideName} monogram`}
-        />
+        {insideLeftMonogram && (
+          <img
+            className="familyMonogramArtwork"
+            src={insideLeftMonogram}
+            alt={`${EVENT.groomName} and ${EVENT.brideName} monogram`}
+          />
+        )}
 
         <section className="familyBlessingsIntro" aria-labelledby="family-blessings-title">
           <h2 id="family-blessings-title">{copy.heading}</h2>
@@ -30,8 +34,6 @@ export default function InsideLeft() {
             ))}
           </p>
         </section>
-
-        
 
         <div className="familyGoldDivider familyNamesDivider" aria-hidden="true"><span>✥</span></div>
 

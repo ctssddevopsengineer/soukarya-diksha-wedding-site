@@ -5,6 +5,7 @@ import { EVENT } from '../lib/event.mjs';
 
 const component = fs.readFileSync(new URL('../components/InsideLeft.js', import.meta.url), 'utf8');
 const css = fs.readFileSync(new URL('../app/globals.css', import.meta.url), 'utf8');
+const theme = fs.readFileSync(new URL('../lib/theme.mjs', import.meta.url), 'utf8');
 
 test('inside-left copy is centralized in EVENT constants', () => {
   assert.equal(EVENT.insideLeft.heading, 'With the Blessings of Our Families');
@@ -29,7 +30,8 @@ test('InsideLeft reads all page copy from EVENT.insideLeft', () => {
 });
 
 test('InsideLeft uses the approved blank template without parchment text masks', () => {
-  assert.match(component, /inside-left-blank\.png/);
+  assert.match(component, /getThemeAsset\(themeId, 'insideLeft'\)/);
+  assert.match(theme, /insideLeft:\s*`\/themes\/\$\{themeId\}\/inside-left\.png`/);
   assert.doesNotMatch(css, /familyDynamicValue/);
   assert.doesNotMatch(css, /parchment mask/i);
 });
@@ -42,5 +44,6 @@ test('family headings remain highlighted and are not replaced by name overlays',
 });
 
 test('exact monogram artwork is included as a dedicated asset', () => {
-  assert.match(component, /inside-left-monogram\.png/);
+  assert.match(component, /getThemeAsset\(themeId, 'insideLeftMonogram'\)/);
+  assert.match(theme, /insideLeftMonogram:\s*insideLeftMonogram \? `\/themes\/\$\{themeId\}\/inside-left-monogram\.png` : ''/);
 });
