@@ -3,15 +3,33 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { EVENT } from '../lib/event.mjs';
 
-test('reception details are centralized in EVENT constants', () => {
-  for (const key of ['dateLabel', 'timeLabel', 'venueName', 'venueAddress', 'mapsUrl']) {
-    assert.equal(typeof EVENT[key], 'string', `${key} should be a string`);
-    assert.ok(EVENT[key].trim().length > 0, `${key} should not be empty`);
-  }
+test('reception details remain centralized in the deployment template', async () => {
+  const source = await readFile(new URL('../lib/event.mjs', import.meta.url), 'utf8');
+  const placeholders = [
+    'EVENT_TIMEZONE',
+    'EVENT_TIMEZONE_OFFSET',
+    'EVENT_START_DATE',
+    'EVENT_START_TIME',
+    'GOOGLE_MAPS_URL',
+    'VENUE_NAME',
+    'VENUE_ADDRESS',
+    'GROOM_NAME',
+    'BRIDE_NAME',
+    'GROOM_FATHER_NAME',
+    'GROOM_MOTHER_NAME',
+    'BRIDE_FATHER_NAME',
+    'BRIDE_MOTHER_NAME',
+    'GROOM_FAMILY_CONTACT_NAME',
+    'GROOM_FAMILY_PHONE_NUMBER',
+    'BRIDE_FAMILY_CONTACT_NAME',
+    'BRIDE_FAMILY_PHONE_NUMBER'
+  ];
 
+  for (const placeholder of placeholders) {
+    assert.match(source, new RegExp(`\\{\\{${placeholder}\\}\\}`));
+  }
   assert.ok(EVENT.start instanceof Date);
-  assert.equal(Number.isNaN(EVENT.start.getTime()), false);
-  assert.match(EVENT.mapsUrl, /^https:\/\//);
+  assert.equal(Number.isNaN(EVENT.start.getTime()), true);
 });
 
 test('Dinner is not part of the event configuration', () => {

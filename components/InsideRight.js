@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import CalendarButtons from '@/components/CalendarButtons';
 import Countdown from '@/components/Countdown';
 import { EVENT } from '@/lib/event.mjs';
+import { withBasePath } from '@/lib/public-path.mjs';
 import { getTheme, getThemeAsset } from '@/lib/theme.mjs';
 
 const HOVER_CLOSE_DELAY_MS = 180;
@@ -187,7 +188,7 @@ export default function InsideRight({ themeId, initialLocationOpen = false, onLo
         <div className="locationPopoverBody">
           <img
             className="locationQr"
-            src="/images/location-qr.png"
+            src={withBasePath('/images/location-qr.png')}
             alt="QR code that opens the reception venue in Google Maps"
           />
           <div className="locationPopoverCopy">
