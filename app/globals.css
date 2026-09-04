@@ -3109,7 +3109,7 @@ a { color: inherit; }
   top: 2.95%;
   left: 50%;
   width: 13.5%;
-  transform: translateX(-40%);
+  transform: translateX(-50%);
   opacity: 1;
   filter: contrast(1.03) saturate(1.04);
 }
