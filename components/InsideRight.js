@@ -8,10 +8,10 @@ import { getTheme, getThemeAsset } from '@/lib/theme.mjs';
 
 const HOVER_CLOSE_DELAY_MS = 180;
 
-export default function InsideRight({ themeId }) {
+export default function InsideRight({ themeId, initialLocationOpen = false, onLocationOpenChange }) {
   const theme = getTheme(themeId);
   const insideRightMonogram = getThemeAsset(themeId, 'insideRightMonogram');
-  const [isPinnedOpen, setIsPinnedOpen] = useState(false);
+  const [isPinnedOpen, setIsPinnedOpen] = useState(Boolean(initialLocationOpen));
   const [isHoverOpen, setIsHoverOpen] = useState(false);
   const closeTimerRef = useRef(null);
   const isLocationOpen = isPinnedOpen || isHoverOpen;
@@ -49,6 +49,14 @@ export default function InsideRight({ themeId }) {
   }
 
   useEffect(() => {
+    setIsPinnedOpen(Boolean(initialLocationOpen));
+  }, [initialLocationOpen]);
+
+  useEffect(() => {
+    onLocationOpenChange?.(isPinnedOpen);
+  }, [isPinnedOpen, onLocationOpenChange]);
+
+  useEffect(() => {
     if (!isLocationOpen) return undefined;
 
     function handleEscape(event) {
@@ -63,7 +71,6 @@ export default function InsideRight({ themeId }) {
 
   return (
     <article className="invitePage exactInsideRight" aria-label="Inside right — reception details">
-      {/* Approved template is preserved as the visual base. */}
       <img
         className="exactInsideRightArtwork"
         src={getThemeAsset(themeId, 'insideRight')}
@@ -81,7 +88,6 @@ export default function InsideRight({ themeId }) {
         </>
       )}
 
-      {/* All reception information is rendered from EVENT constants inside the Reception Details area. */}
       <section className="receptionDetailsOverlay" aria-label="Reception details">
         <div className="receptionDetailItem">
           <p className="receptionDetailLabel">Day &amp; Date</p>
@@ -141,7 +147,6 @@ export default function InsideRight({ themeId }) {
         </span>
       )}
 
-      {/* Location / Map medallion: hover/focus on desktop, click/tap on all devices. */}
       <button
         type="button"
         className="exactLocationHotspot"

@@ -5,11 +5,14 @@ import BackCover from '@/components/BackCover';
 import FrontCover from '@/components/FrontCover';
 import InsideLeft from '@/components/InsideLeft';
 import InsideRight from '@/components/InsideRight';
+import QrNfcPanel from '@/components/QrNfcPanel';
+import SmartSharePanel from '@/components/SmartSharePanel';
 import ThemeSwitcher from '@/components/ThemeSwitcher';
 import { INVITATION_PAGES, nextPageIndex, previousPageIndex } from '@/lib/navigation.mjs';
 import { DEFAULT_THEME_ID, getTheme, resolveThemeId, THEME_STORAGE_KEY } from '@/lib/theme.mjs';
 import { getThemeWarmupAssets } from '@/lib/theme-preload.mjs';
-import { buildThemeRelativeUrl, getInitialThemeId, getThemeIdFromSearch } from '@/lib/theme-url.mjs';
+import { getInitialThemeId, getThemeIdFromSearch } from '@/lib/theme-url.mjs';
+import { buildInvitationRelativeUrl, getDeepLinkState } from '@/lib/deep-link.mjs';
 
 const PAGE_LABELS = ['Front', 'Inside Left', 'Inside Right', 'Back'];
 const SWIPE_THRESHOLD = 55;
@@ -19,6 +22,7 @@ export default function InvitationBook() {
   const [pageIndex, setPageIndex] = useState(0);
   const [themeId, setThemeId] = useState(DEFAULT_THEME_ID);
   const [themeReady, setThemeReady] = useState(false);
+  const [locationDeepLinked, setLocationDeepLinked] = useState(false);
   const touchStartX = useRef(null);
   const warmedAssets = useRef(new Set());
 
@@ -42,6 +46,9 @@ export default function InvitationBook() {
       // Storage may be unavailable in privacy mode. URL/default still work.
     }
 
+    const deepLink = getDeepLinkState(window.location.search);
+    setPageIndex(deepLink.pageIndex);
+    setLocationDeepLinked(deepLink.locationOpen);
     setThemeId(getInitialThemeId({ search: window.location.search, storedTheme }));
     setThemeReady(true);
   }, []);
@@ -49,7 +56,10 @@ export default function InvitationBook() {
   useEffect(() => {
     function handlePopState() {
       const urlTheme = getThemeIdFromSearch(window.location.search);
+      const deepLink = getDeepLinkState(window.location.search);
       if (urlTheme) setThemeId(urlTheme);
+      setPageIndex(deepLink.pageIndex);
+      setLocationDeepLinked(deepLink.locationOpen);
     }
 
     window.addEventListener('popstate', handlePopState);
@@ -67,17 +77,25 @@ export default function InvitationBook() {
       // Storage can be blocked; the URL still preserves the active theme.
     }
 
-    const nextRelativeUrl = buildThemeRelativeUrl(window.location, themeId);
+    const nextRelativeUrl = buildInvitationRelativeUrl(window.location, {
+      themeId,
+      pageIndex,
+      locationOpen: locationDeepLinked && pageIndex === 2
+    });
     const currentRelativeUrl = `${window.location.pathname}${window.location.search}${window.location.hash}`;
     if (nextRelativeUrl !== currentRelativeUrl) {
       window.history.replaceState(window.history.state, '', nextRelativeUrl);
     }
-  }, [themeId, themeReady]);
+  }, [themeId, pageIndex, locationDeepLinked, themeReady]);
 
   useEffect(() => {
     if (!themeReady) return;
     warmThemeAssets(themeId, pageIndex);
   }, [pageIndex, themeId, themeReady, warmThemeAssets]);
+
+  useEffect(() => {
+    if (pageIndex !== 2 && locationDeepLinked) setLocationDeepLinked(false);
+  }, [pageIndex, locationDeepLinked]);
 
   useEffect(() => {
     function handleKeyboardNavigation(event) {
@@ -139,7 +157,12 @@ export default function InvitationBook() {
   const pages = [
     <FrontCover key="front" themeId={themeId} onOpen={() => goTo(1)} />,
     <InsideLeft key="inside-left" themeId={themeId} />,
-    <InsideRight key="inside-right" themeId={themeId} />,
+    <InsideRight
+      key="inside-right"
+      themeId={themeId}
+      initialLocationOpen={locationDeepLinked}
+      onLocationOpenChange={setLocationDeepLinked}
+    />,
     <BackCover key="back" themeId={themeId} />
   ];
 
@@ -155,6 +178,15 @@ export default function InvitationBook() {
         onThemeChange={changeTheme}
         onThemeWarm={(id) => warmThemeAssets(id, pageIndex)}
       />
+
+      <div className="phase2bExperienceTools">
+        <SmartSharePanel
+          themeId={themeId}
+          pageIndex={pageIndex}
+          locationOpen={locationDeepLinked && pageIndex === 2}
+        />
+        <QrNfcPanel themeId={themeId} pageIndex={pageIndex} />
+      </div>
 
       <section
         className={`bookStage page-${INVITATION_PAGES[pageIndex]}`}

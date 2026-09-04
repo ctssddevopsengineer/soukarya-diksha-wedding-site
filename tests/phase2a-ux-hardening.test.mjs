@@ -28,7 +28,8 @@ test('InvitationBook restores theme from URL first, persists selection and keeps
   assert.match(book, /getInitialThemeId/);
   assert.match(book, /window\.location\.search/);
   assert.match(book, /window\.localStorage\.getItem\(THEME_STORAGE_KEY\)/);
-  assert.match(book, /buildThemeRelativeUrl/);
+  // Phase 2B extends the Phase 2A theme URL into a combined theme + page deep link.
+  assert.match(book, /buildInvitationRelativeUrl/);
   assert.match(book, /window\.history\.replaceState/);
   assert.match(book, /window\.localStorage\.setItem\(THEME_STORAGE_KEY, themeId\)/);
 });
