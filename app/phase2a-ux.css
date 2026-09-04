@@ -1,0 +1,248 @@
+/* ========================================================================== */
+/* PHASE 2A — UX HARDENING: URL THEMES, THUMBNAILS, TRANSITIONS & A11Y        */
+/* ========================================================================== */
+
+/* Thumbnail theme picker. Existing front artwork is lazy-loaded into compact preview frames, so no extra binary assets are required. */
+.themeSwitcher {
+  width: min(100%, 960px);
+  padding: 12px;
+  gap: 10px;
+}
+
+.themeSwitcherHeading {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 6px 12px;
+  text-align: center;
+}
+
+.themeSwitcherHint {
+  color: rgba(255, 242, 211, .72);
+  font-size: .7rem;
+  letter-spacing: .02em;
+}
+
+.themeOptions {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(132px, 1fr));
+  gap: 9px;
+}
+
+.themeOption {
+  min-width: 0;
+  min-height: 76px;
+  padding: 7px 8px;
+  display: grid;
+  grid-template-columns: 46px minmax(0, 1fr) 18px;
+  align-items: center;
+  justify-content: stretch;
+  gap: 8px;
+  border-radius: 14px;
+  text-align: left;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.themeOption:hover {
+  transform: translateY(-2px);
+}
+
+.themeOption:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--theme-gold) 82%, white);
+  outline-offset: 3px;
+}
+
+.themeThumbnailFrame {
+  position: relative;
+  width: 46px;
+  aspect-ratio: 3 / 4.25;
+  overflow: hidden;
+  border: 1px solid rgba(255, 240, 210, .6);
+  border-radius: 8px;
+  background: var(--swatch, #71131b);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, .2);
+}
+
+.themeThumbnail {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+
+.themeSwatch {
+  position: absolute;
+  right: 3px;
+  bottom: 3px;
+  width: 12px;
+  height: 12px;
+  border: 1px solid rgba(255,255,255,.88);
+  border-radius: 50%;
+  background: var(--swatch);
+  box-shadow: 0 1px 3px rgba(0,0,0,.22);
+}
+
+.themeOptionName {
+  min-width: 0;
+  overflow: hidden;
+  color: #fff2d3;
+  font-size: .76rem;
+  font-weight: 700;
+  line-height: 1.18;
+  text-overflow: ellipsis;
+}
+
+.themeOption.active {
+  background: color-mix(in srgb, var(--theme-accent) 30%, rgba(255,255,255,.12));
+  border-color: color-mix(in srgb, var(--theme-gold) 78%, white);
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--theme-gold) 32%, transparent),
+    0 7px 18px rgba(0,0,0,.16);
+}
+
+.themeCheck {
+  width: 18px;
+  height: 18px;
+  justify-self: end;
+}
+
+/* Keying the viewport by theme/page gives a lightweight transition without
+   keeping duplicate high-resolution page images mounted in the DOM. */
+.themeTransitionFrame {
+  animation: themePageCrossfade .28s cubic-bezier(.2, .7, .3, 1) both;
+}
+
+@keyframes themePageCrossfade {
+  from { opacity: .42; transform: translateY(4px) scale(.997); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Long-text safety. These rules deliberately wrap rather than clip dynamic
+   family names, venue/address values, invitation copy and contact details. */
+.dynamicFrontCopy,
+.dynamicFrontHeading,
+.dynamicFrontTagline,
+.dynamicFrontNames,
+.dynamicFrontClosing,
+.familyBlessingsContent,
+.familyBlessingsIntro,
+.familyBlock,
+.familyBlessingsClosing,
+.receptionDetailsOverlay,
+.receptionDetailValue,
+.receptionAddressValue,
+.heritageBackContent,
+.heritageBackMessage,
+.heritageCoupleNames,
+.heritageJourneyMessage,
+.heritageAssistance,
+.contactCard,
+.contactCard p,
+.contactCard a {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  word-break: normal;
+  hyphens: auto;
+}
+
+.dynamicFrontHeading,
+.familyBlessingsIntro h2,
+.familyBlock h3,
+.insideRightDynamicTitle,
+.receptionDetailLabel,
+.heritageBackIntro h2,
+.heritageAssistance h3 {
+  text-wrap: balance;
+}
+
+.dynamicFrontTagline,
+.dynamicFrontClosing,
+.familyBlessingsIntro p,
+.familyBlessingsClosing,
+.receptionDetailValue,
+.heritageBackMessage,
+.heritageJourneyMessage {
+  text-wrap: pretty;
+}
+
+/* Previous theme rules intentionally used nowrap for short real names. The
+   final safety override allows unusual/long names to wrap instead of escaping
+   the parchment safe zone. */
+.bookApp[data-invitation-theme] .dynamicFrontNames {
+  width: 92%;
+  white-space: normal;
+}
+
+.bookApp[data-invitation-theme] .dynamicFrontNames span {
+  display: inline-block;
+  max-width: 44%;
+  vertical-align: middle;
+  overflow-wrap: anywhere;
+}
+
+.receptionAddressValue {
+  width: 100%;
+  max-width: 100%;
+  margin-inline: auto;
+}
+
+/* Clear keyboard focus affordances for page navigation and map interaction. */
+.navArrow:focus-visible,
+.pageDot:focus-visible,
+.openButton:focus-visible,
+.exactLocationHotspot:focus-visible,
+.utilityCloseButton:focus-visible,
+.btn:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--theme-gold) 82%, white);
+  outline-offset: 3px;
+}
+
+.exactLocationHotspot {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Responsive validation matrix: fluid rules are exercised at
+   320 / 360 / 390 / 430 / 768 / 1024 / 1440px by the accompanying tests. */
+@media (max-width: 430px) {
+  .themeOptions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px;
+  }
+
+  .themeOption {
+    min-height: 66px;
+    grid-template-columns: 38px minmax(0, 1fr) 16px;
+    gap: 6px;
+    padding: 6px;
+  }
+
+  .themeThumbnailFrame { width: 38px; }
+  .themeOptionName { font-size: .68rem; }
+  .themeSwitcherHint { width: 100%; font-size: .64rem; }
+}
+
+@media (max-width: 360px) {
+  .themeSwitcher { padding-inline: 6px; }
+  .themeOptions { gap: 5px; }
+  .themeOption { grid-template-columns: 34px minmax(0, 1fr) 14px; }
+  .themeThumbnailFrame { width: 34px; }
+  .themeOptionName { font-size: .63rem; }
+}
+
+@media (min-width: 681px) and (max-width: 1024px) {
+  .themeOptions {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .themeTransitionFrame,
+  .themeOption {
+    animation: none !important;
+    transition: none !important;
+  }
+}
