@@ -1,26 +1,25 @@
-# Build and deploy the statically exported Next.js invitation to GitHub Pages.
-name: CD
+name: CI
 
 on:
   push:
     branches:
       - development
       - master
+      - release/**
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
 concurrency:
-  group: pages
+  group: ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  build:
-    environment:
-      name: unt
+  test-build:
+    name: Tests and GitHub Pages-compatible build
     runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: unt
     env:
       NEXT_PUBLIC_BASE_PATH: /${{ github.event.repository.name }}
 
@@ -28,71 +27,68 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
 
-      - name: Setup Node
+      - name: Setup Node.js
         uses: actions/setup-node@v7
         with:
           node-version: 24
           cache: npm
 
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
-        with:
-          static_site_generator: next
-
       - name: Install dependencies
         run: npm ci
 
-      # Validate source before replacing deployment placeholders. The existing
-      # regression suite expects root-relative source asset paths and template tokens.
-      - name: Run tests
-        if: false
+      # Source-level regression tests intentionally run against the repository
+      # template before deployment variables are rendered and without a hosting
+      # base path. This keeps Phase 2A asset-integrity assertions stable.
+      - name: Unit tests
         env:
           NEXT_PUBLIC_BASE_PATH: ''
         run: npm test
 
-      - name: Run Phase 2B tests
+      - name: Phase 2B tests
         env:
           NEXT_PUBLIC_BASE_PATH: ''
         run: npm run test:phase2b
 
-      - name: Render invitation configuration
+      - name: Render CI invitation configuration
         env:
           EVENT_TIMEZONE: ${{ vars.EVENT_TIMEZONE }}
-          EVENT_TIMEZONE_OFFSET: ${{ vars.EVENT_TIMEZONE_OFFSET }}
-          EVENT_START_DATE: ${{ vars.EVENT_START_DATE }}
-          EVENT_START_TIME: ${{ vars.EVENT_START_TIME }}
-          GOOGLE_MAPS_URL: ${{ vars.GOOGLE_MAPS_URL }}
-          VENUE_NAME: ${{ vars.VENUE_NAME }}
-          VENUE_ADDRESS: ${{ vars.VENUE_ADDRESS }}
-          GROOM_NAME: ${{ vars.GROOM_NAME }}
-          BRIDE_NAME: ${{ vars.BRIDE_NAME }}
-          GROOM_FATHER_NAME: ${{ vars.GROOM_FATHER_NAME }}
-          GROOM_MOTHER_NAME: ${{ vars.GROOM_MOTHER_NAME }}
-          BRIDE_FATHER_NAME: ${{ vars.BRIDE_FATHER_NAME }}
-          BRIDE_MOTHER_NAME: ${{ vars.BRIDE_MOTHER_NAME }}
-          GROOM_FAMILY_CONTACT_NAME: ${{ vars.GROOM_FAMILY_CONTACT_NAME }}
-          GROOM_FAMILY_PHONE_NUMBER: ${{ vars.GROOM_FAMILY_PHONE_NUMBER }}
-          BRIDE_FAMILY_CONTACT_NAME: ${{ vars.BRIDE_FAMILY_CONTACT_NAME }}
-          BRIDE_FAMILY_PHONE_NUMBER: ${{ vars.BRIDE_FAMILY_PHONE_NUMBER }}
+          EVENT_TIMEZONE_OFFSET: +05:30
+          EVENT_START_DATE: '2027-01-23'
+          EVENT_START_TIME: '19:00:00'
+          GOOGLE_MAPS_URL: https://maps.app.goo.gl/QXBrYKXfHC27pNAj8
+          VENUE_NAME: HRS Bhawan
+          VENUE_ADDRESS: 92, Artillary Road, Cantonment, Barrackpore, West Bengal 700120
+          GROOM_NAME: Soukarya
+          BRIDE_NAME: Diksha
+          GROOM_FATHER_NAME: Somnath Datta
+          GROOM_MOTHER_NAME: Nirjhara Datta
+          BRIDE_FATHER_NAME: Sri Krishna Bhujel
+          BRIDE_MOTHER_NAME: Late Durgamaya Bhujel
+          GROOM_FAMILY_CONTACT_NAME: Groom Family
+          GROOM_FAMILY_PHONE_NUMBER: '+910000000000'
+          BRIDE_FAMILY_CONTACT_NAME: Bride Family
+          BRIDE_FAMILY_PHONE_NUMBER: '+910000000001'
         run: npm run config:render
 
       - name: Build static export
         run: npm run build
 
-      - name: Validate GitHub Pages export
+      - name: Validate GitHub Pages-compatible export
         run: npm run validate:export
 
-      - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v5
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v7
         with:
-          path: ./out
+          name: github-pages-compatible-export
+          path: out/
+          if-no-files-found: error
 
   deploy:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
-    needs: build
+    needs: test-build
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
