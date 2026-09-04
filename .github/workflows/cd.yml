@@ -43,6 +43,18 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      # Validate source before replacing deployment placeholders. The existing
+      # regression suite expects root-relative source asset paths and template tokens.
+      - name: Run tests
+        env:
+          NEXT_PUBLIC_BASE_PATH: ''
+        run: npm test
+
+      - name: Run Phase 2B tests
+        env:
+          NEXT_PUBLIC_BASE_PATH: ''
+        run: npm run test:phase2b
+
       - name: Render invitation configuration
         env:
           EVENT_TIMEZONE: ${{ vars.EVENT_TIMEZONE }}
@@ -63,12 +75,6 @@ jobs:
           BRIDE_FAMILY_CONTACT_NAME: ${{ vars.BRIDE_FAMILY_CONTACT_NAME }}
           BRIDE_FAMILY_PHONE_NUMBER: ${{ vars.BRIDE_FAMILY_PHONE_NUMBER }}
         run: npm run config:render
-
-      - name: Run tests
-        run: npm test
-
-      - name: Run Phase 2B tests
-        run: npm run test:phase2b
 
       - name: Build static export
         run: npm run build
