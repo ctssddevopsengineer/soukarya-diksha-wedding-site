@@ -6,7 +6,6 @@ on:
       - development
       - master
       - release/**
-  workflow_dispatch:
 
 permissions:
   contents: read
