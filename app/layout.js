@@ -8,8 +8,7 @@ export const metadata = {
   openGraph: {
     title: 'Soukarya & Diksha | Reception Invitation',
     description: 'A Celebration of Two Cultures, One Beautiful Journey',
-    type: 'website',
-    images: ['/themes/classic/front.png']
+    type: 'website'
   }
 };
 
