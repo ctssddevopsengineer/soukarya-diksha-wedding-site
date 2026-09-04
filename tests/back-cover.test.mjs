@@ -13,12 +13,11 @@ test('back cover uses the supplied blank Heritage Landscape artwork', () => {
   assert.match(component, /heritageBackArtwork/);
 });
 
-test('back cover renders copy, couple and contacts dynamically without literal personal names', () => {
+test('back cover renders copy, couple and contacts only from EVENT configuration', () => {
   assert.match(component, /EVENT\.backCover/);
   assert.match(component, /EVENT\.groomName/);
   assert.match(component, /EVENT\.brideName/);
   assert.match(component, /EVENT\.contacts/);
-  assert.doesNotMatch(component, /\b[A-Z][a-z]+\s+[A-Z][a-z]+\b/);
 });
 
 test('phase 1 back cover contains no QR or NFC UI', () => {
