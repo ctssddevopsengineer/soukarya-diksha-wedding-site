@@ -9,7 +9,7 @@ const theme = fs.readFileSync(new URL('../lib/theme.mjs', import.meta.url), 'utf
 
 test('back cover uses the supplied blank Heritage Landscape artwork', () => {
   assert.match(component, /getThemeAsset\(themeId, 'back'\)/);
-  assert.match(theme, /back:\s*`\/themes\/\$\{themeId\}\/back\.png`/);
+  assert.match(theme, /back:\s*asset\(`\/themes\/\$\{themeId\}\/back\.png`\)/);
   assert.match(component, /heritageBackArtwork/);
 });
 
@@ -55,7 +55,7 @@ test('critical back-cover text zones are separated vertically', () => {
 
 test('back-cover monogram uses dedicated high-resolution transparent artwork', () => {
   assert.match(component, /getThemeAsset\(themeId, 'backMonogram'\)/);
-  assert.match(theme, /backMonogram:\s*backMonogram \? `\/themes\/\$\{themeId\}\/back-monogram\.png` : ''/);
+  assert.match(theme, /backMonogram:\s*backMonogram \? asset\(`\/themes\/\$\{themeId\}\/back-monogram\.png`\) : ''/);
   assert.match(css, /\.heritageBackMonogram[\s\S]*?opacity:\s*1/);
   assert.doesNotMatch(css.match(/\.heritageBackMonogram\s*\{[\s\S]*?\}/)?.[0] ?? '', /mix-blend-mode|mask-image/);
 });

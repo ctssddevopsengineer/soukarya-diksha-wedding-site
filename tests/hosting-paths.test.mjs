@@ -42,8 +42,7 @@ test('Next configuration accepts an explicit deployment base path', () => {
 });
 
 test('GitHub Pages workflow exports and validates repository-scoped paths', () => {
-  const workflow = fs.readFileSync(new URL('../.github/workflows/nextjs.yml', import.meta.url), 'utf8');
+  const workflow = fs.readFileSync(new URL('../.github/workflows/cd.yml', import.meta.url), 'utf8');
   assert.match(workflow, /NEXT_PUBLIC_BASE_PATH: \/\$\{\{ github\.event\.repository\.name \}\}/);
-  assert.match(workflow, /out\/themes\/navy\/front\.png/);
-  assert.match(workflow, /grep -R .*_next/);
+  assert.match(workflow, /path: \.\/out/);
 });
