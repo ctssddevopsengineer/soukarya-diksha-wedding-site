@@ -17,11 +17,34 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  set-environment:
+    runs-on: ubuntu-latest
+    outputs:
+      environment: ${{ steps.set-env.outputs.environment }}
+    steps:
+      - name: Check branch name and set environment variable
+        id: set-env
+        run: |
+          if [[ "${{ github.ref_name }}" == "development" ]]; then
+            echo "environment=unt" >> $GITHUB_OUTPUT
+          elif [[ "${{ github.ref_name }}" == "master" ]]; then
+            echo "environment=prd" >> $GITHUB_OUTPUT
+          elif [[ "${{ github.ref_name }}" == "release/**" ]]; then
+            echo "environment=uat" >> $GITHUB_OUTPUT
+          else
+            echo "This workflow only runs on development, master, or release branches."
+            exit 1
+          fi
+        
+      - name: Display environment variable
+        run: echo "Environment variable is set to ${{ steps.set-env.outputs.environment }}"
+  
   build:
     name: Build GitHub Pages artifact
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    environment: unt
+    needs: set-environment
+    environment: ${{ needs.set-environment.outputs.environment }}
     env:
       NEXT_PUBLIC_BASE_PATH: /${{ github.event.repository.name }}
 
@@ -36,7 +59,7 @@ jobs:
           cache: npm
 
       - name: Setup GitHub Pages
-        uses: actions/configure-pages@v5
+        uses: actions/configure-pages@v6
         with:
           static_site_generator: next
 
