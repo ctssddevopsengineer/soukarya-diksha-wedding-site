@@ -1,6 +1,9 @@
 name: CI
 
 on:
+  push:
+    branches:
+      - feature/phase2b
   pull_request:
     branches:
       - development
@@ -33,9 +36,6 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      # Run source-level regression tests exactly as they run locally.
-      # Do NOT set a deployment base path here because several Phase 2A tests
-      # intentionally assert canonical /themes/... source paths.
       - name: Unit tests
         env:
           NEXT_PUBLIC_BASE_PATH: ''
@@ -46,25 +46,26 @@ jobs:
           NEXT_PUBLIC_BASE_PATH: ''
         run: npm run test:phase2b
 
-      # Render deployment-time invitation values only after source tests pass.
+      # CI uses neutral fixture values only to prove that the deployment template
+      # can be rendered and exported. Production values come from environment vars.
       - name: Render CI invitation configuration
         env:
           EVENT_TIMEZONE: Asia/Kolkata
           EVENT_TIMEZONE_OFFSET: +05:30
           EVENT_START_DATE: '2027-01-23'
           EVENT_START_TIME: '19:00:00'
-          GOOGLE_MAPS_URL: https://maps.app.goo.gl/QXBrYKXfHC27pNAj8
-          VENUE_NAME: HRS Bhawan
-          VENUE_ADDRESS: 92, Artillary Road, Cantonment, Barrackpore, West Bengal 700120
-          GROOM_NAME: Soukarya
-          BRIDE_NAME: Diksha
-          GROOM_FATHER_NAME: Somnath Datta
-          GROOM_MOTHER_NAME: Nirjhara Datta
-          BRIDE_FATHER_NAME: Sri Krishna Bhujel
-          BRIDE_MOTHER_NAME: Late Durgamaya Bhujel
-          GROOM_FAMILY_CONTACT_NAME: Groom Family
+          GOOGLE_MAPS_URL: https://maps.example.test/venue
+          VENUE_NAME: Sample Venue
+          VENUE_ADDRESS: Sample Address, Sample City, India
+          GROOM_NAME: Groom
+          BRIDE_NAME: Bride
+          GROOM_FATHER_NAME: Groom Father
+          GROOM_MOTHER_NAME: Groom Mother
+          BRIDE_FATHER_NAME: Bride Father
+          BRIDE_MOTHER_NAME: Bride Mother
+          GROOM_FAMILY_CONTACT_NAME: Groom Family Contact
           GROOM_FAMILY_PHONE_NUMBER: '+910000000000'
-          BRIDE_FAMILY_CONTACT_NAME: Bride Family
+          BRIDE_FAMILY_CONTACT_NAME: Bride Family Contact
           BRIDE_FAMILY_PHONE_NUMBER: '+910000000001'
         run: npm run config:render
 
