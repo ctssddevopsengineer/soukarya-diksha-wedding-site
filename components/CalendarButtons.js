@@ -3,6 +3,14 @@
 import { EVENT } from '@/lib/event.mjs';
 import { buildGoogleCalendarUrl, buildIcs } from '@/lib/calendar.mjs';
 
+function toSafeFilePart(value) {
+  return String(value || 'wedding-reception')
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '') || 'wedding-reception';
+}
+
 export default function CalendarButtons() {
   const googleUrl = buildGoogleCalendarUrl(EVENT);
 
@@ -11,7 +19,7 @@ export default function CalendarButtons() {
     const url = URL.createObjectURL(blob);
     const anchor = document.createElement('a');
     anchor.href = url;
-    anchor.download = 'soukarya-diksha-reception.ics';
+    anchor.download = `${toSafeFilePart(EVENT.couple)}-reception.ics`;
     document.body.appendChild(anchor);
     anchor.click();
     anchor.remove();

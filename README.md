@@ -1,18 +1,18 @@
-# Soukarya & Diksha Wedding Site
+# Wedding Invitation Site
 
-A digital wedding invitation experience built with Next.js, designed to feel warm, personal, and elegant across desktop and mobile screens. The app presents a four-page invitation book with theme switching, responsive navigation, and event details that are centralized for easy updates.
+A configurable digital wedding invitation experience built with Next.js, designed to feel warm, personal, and elegant across desktop and mobile screens. The app presents a four-page invitation book with theme switching, responsive navigation, sharing utilities, and event details that are injected at build time.
 
 ## Project overview
 
-This project is a modern microsite for a wedding invitation and can be seen as a lightweight digital guestbook experience. It includes:
+This project includes:
 
 - a four-page invitation flow: Front, Inside Left, Inside Right, and Back
-- a theme system with multiple visual styles
+- six visual themes
 - swipe, arrow, and keyboard navigation
 - persistent theme selection using browser storage and URL state
-- event data and family contact configuration in a central data file
-- image-based theme assets for each page and color palette
-- automated test coverage for layout, navigation, and theme integrity
+- centralized event and family configuration
+- GitHub Pages-compatible static export
+- automated test coverage for layout, navigation, hosting paths, sharing, and theme integrity
 
 The application entry point is `app/page.js`, which renders `InvitationBook` from `components/InvitationBook.js`.
 
@@ -23,37 +23,61 @@ The application entry point is `app/page.js`, which renders `InvitationBook` fro
 - React DOM `19.2.0`
 - Node `>=22`
 
-## Deployment
+## Local development
 
-### Local development
+The source version of `lib/event.mjs` contains build-time placeholders. Render a local configuration before starting the production-style app, or provide a local development configuration appropriate for your environment.
 
 ```bash
 npm install
+npm test
 npm run dev
 ```
 
-Then open the local Next.js development URL shown in the terminal.
-
-### Production build
+## Production build
 
 ```bash
-npm run build
-npm start
-```
-
-### Useful test commands
-
-```bash
+npm ci
 npm test
-npm run test:unit
-npm run test:phase2a
+npm run config:render
+npm run build
+npm run validate:export
 ```
+
+`config:render` reads invitation values from environment variables and replaces the placeholders in `lib/event.mjs` before the static export is generated.
+
+## Invitation configuration
+
+The deployment pipeline supplies the following variables rather than keeping personal details in source code:
+
+```text
+EVENT_TIMEZONE
+EVENT_TIMEZONE_OFFSET
+EVENT_START_DATE
+EVENT_START_TIME
+GOOGLE_MAPS_URL
+VENUE_NAME
+VENUE_ADDRESS
+GROOM_NAME
+BRIDE_NAME
+GROOM_FATHER_NAME
+GROOM_MOTHER_NAME
+BRIDE_FATHER_NAME
+BRIDE_MOTHER_NAME
+GROOM_FAMILY_CONTACT_NAME
+GROOM_FAMILY_PHONE_NUMBER
+BRIDE_FAMILY_CONTACT_NAME
+BRIDE_FAMILY_PHONE_NUMBER
+```
+
+For GitHub Pages production deployments these values are expected as GitHub Actions environment/repository variables and are consumed by `.github/workflows/cd.yml`.
 
 ## Current app structure
 
 ```text
 app/
   globals.css
+  phase2b.css
+  responsive-layout.css
   layout.js
   page.js
 
@@ -67,10 +91,13 @@ components/
   CalendarButtons.js
   ContactDetails.js
   Countdown.js
+  SmartSharePanel.js
+  QrNfcPanel.js
 
 lib/
   event.mjs
   theme.mjs
+  public-path.mjs
   theme-url.mjs
   theme-preload.mjs
   navigation.mjs
@@ -87,81 +114,48 @@ public/
     plum/
     saffron/
 
-tests/
-  theme.test.mjs
-  navigation.test.mjs
-  event-config.test.mjs
-  responsive-matrix.test.mjs
-  long-text-stress.test.mjs
-  phase2a-ux-hardening.test.mjs
+scripts/
+  render-event-config.mjs
+  validate-static-export.mjs
 ```
 
-## Event and content configuration
+## Available themes
 
-The event information is centralized in `lib/event.mjs` and currently includes:
+- Original Deep Red (`classic`)
+- Blush Rose (`blush`)
+- Rani Magenta (`magenta`)
+- Royal Navy (`navy`)
+- Royal Plum (`plum`)
+- Saffron Gold (`saffron`)
 
-- couple names: Soukarya & Diksha
-- event title: `Soukarya & Diksha — Wedding Reception`
-- date: `2027-01-23`
-- timezone: `Asia/Kolkata`
-- venue: `HRS Bhawan`
-- address: `92, Artillary Road, Cantonment, Barrackpore, West Bengal 700120`
-- map link: Google Maps deep link configured in the code
+Theme metadata lives in `lib/theme.mjs`, while the artwork lives under `public/themes/<theme>/`.
 
-This makes it easy to update names, venue, schedule, or family details without rewriting the UI.
+## GitHub Pages deployment
 
-## Theme customization
+`next.config.mjs` uses static export plus a deployment base path. Public assets are resolved through `lib/public-path.mjs`, so theme artwork and QR assets continue to work when the site is hosted below a repository path.
 
-Theme configuration lives in `lib/theme.mjs`.
+The GitHub Pages workflow:
 
-### Default theme
+1. installs dependencies
+2. renders invitation configuration from GitHub variables
+3. builds the static export
+4. validates the exported paths/assets
+5. uploads the Pages artifact
+6. deploys through `actions/deploy-pages`
 
-- `classic`
+## Testing
 
-### Available themes
+Useful commands:
 
-- `classic`
-- `blush`
-- `magenta`
-- `navy`
-- `plum`
-- `saffron`
+```bash
+npm test
+npm run test:phase2a
+npm run test:phase2b
+npm run validate:export
+```
 
-### Backward-compatible aliases
+The responsive suite protects all 24 theme/page combinations (6 themes × 4 invitation pages) and includes compact-phone, phone, tablet, and desktop layout guards.
 
-- `pink` -> `blush`
-- `rani` -> `magenta`
-- `royalNavy` -> `navy`
-- `royalPlum` -> `plum`
-- `saffronGold` -> `saffron`
+## Maintenance principle
 
-Each theme has metadata such as accent color, soft tones, ink color, and page assets under `public/themes/<theme>/`.
-
-To customize the invitation appearance:
-
-1. update the theme metadata in `lib/theme.mjs`
-2. replace or add assets inside `public/themes/<theme>/`
-3. keep the file names consistent with the generated asset references
-4. confirm the updated theme still passes the integrity tests
-
-## Customization notes for collaborators
-
-A few files are the main touchpoints for project changes:
-
-- `lib/event.mjs` — names, event date, venue, family details, and map link
-- `lib/theme.mjs` — theme names, palette, aliases, and theme metadata
-- `public/themes/*` — page artwork and visual styling assets
-- `components/*.js` — page layout and invitation content rendering
-- `app/globals.css` — shared styling and visual polish
-
-## Maintenance
-
-This project is intentionally structured so that non-design contributors can update wedding details without changing the underlying page logic. If any invitation text, family references, theme colors, or venue details need to change, the core updates are centralized in the files above.
-
-## Notes
-
-- The app stores the selected theme in browser local storage using the key `sd-invitation-theme`.
-- The active theme is also synchronized to the URL for shareable or persistent state.
-- The app includes a test suite for navigation, responsiveness, theme integrity, and stress conditions.
-
-This README is intended to serve as a simple project overview for family members or collaborators, while remaining aligned with the code that powers the invitation site.
+Personal invitation details should not be embedded directly in React components, utility modules, calendar metadata, or deployment workflow source. Components should consume `EVENT`, and deployment-specific values should be supplied through the configuration-rendering pipeline.
