@@ -2,9 +2,10 @@ name: CI
 
 on:
   pull_request:
-    branches: [main]
+    types: [opened, synchronize, reopened]
+    branches: [master, development, release/**]
   push:
-    branches: [main]
+    branches: [master, development, release/**]
 
 permissions:
   contents: read
@@ -15,25 +16,46 @@ concurrency:
 
 jobs:
   test-build:
-    name: Unit tests and production build
+    name: Unit tests and build
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
-          node-version: 22
-          cache: npm
+          node-version: 24
 
+      - name: Cache dependencies
+        id: cache-dependencies
+        uses: actions/cache@v5
+        with:
+          key: npm-${{ runner.os }}-${{ hashFiles('**/package.json') }}
+          path: ~/.npm
+          restore-keys: |
+            npm-${{ runner.os }}-
+            npm
+      
       - name: Install dependencies
-        run: npm install --no-audit --no-fund
+        if: ${{ steps.cache-dependencies.outputs.cache-hit != 'true' }}
+        run: |
+          if [ -f package-lock.json ]; then npm ci; else npm install; fi
 
       - name: Unit tests
         run: npm test
 
-      - name: Production build
+      - name: Build
         run: npm run build
+      
+      - name: List workspace files
+        run: ls -R
+      
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: build-artifacts
+          path: |
+            dist/
