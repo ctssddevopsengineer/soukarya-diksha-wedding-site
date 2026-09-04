@@ -13,15 +13,12 @@ test('back cover uses the supplied blank Heritage Landscape artwork', () => {
   assert.match(component, /heritageBackArtwork/);
 });
 
-test('back cover renders copy, couple and contacts dynamically', () => {
+test('back cover renders copy, couple and contacts dynamically without literal personal names', () => {
   assert.match(component, /EVENT\.backCover/);
   assert.match(component, /EVENT\.groomName/);
   assert.match(component, /EVENT\.brideName/);
   assert.match(component, /EVENT\.contacts/);
-  assert.doesNotMatch(component, /Soukarya/);
-  assert.doesNotMatch(component, /Diksha/);
-  assert.doesNotMatch(component, /Somnath Datta/);
-  assert.doesNotMatch(component, /Gita Khawas/);
+  assert.doesNotMatch(component, /\b[A-Z][a-z]+\s+[A-Z][a-z]+\b/);
 });
 
 test('phase 1 back cover contains no QR or NFC UI', () => {
@@ -51,7 +48,6 @@ test('critical back-cover text zones are separated vertically', () => {
   assert.ok(top('.heritageCoupleNames') < top('.heritageJourneyMessage'));
   assert.ok(top('.heritageJourneyMessage') < top('.heritageAssistance'));
 });
-
 
 test('back-cover monogram uses dedicated high-resolution transparent artwork', () => {
   assert.match(component, /getThemeAsset\(themeId, 'backMonogram'\)/);
