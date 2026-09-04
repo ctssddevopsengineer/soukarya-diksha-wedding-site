@@ -5,7 +5,8 @@ on:
     types: [opened, synchronize, reopened]
     branches: [master, development, release/**]
   push:
-    branches: [master, development, release/**]
+    branches: [master, development, release/**, feature/phase2b]
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -46,15 +47,18 @@ jobs:
       - name: Unit tests
         run: npm test
 
+      - name: Phase 2B tests
+        run: npm run test:phase2b
+
       - name: Build
         run: npm run build
 
-      - name: List workspace files
-        run: ls -R
+      - name: Verify static export
+        run: test -f out/index.html
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v7
         with:
           name: build-artifacts
-          path: |
-            dist/
+          path: out/
+          if-no-files-found: error
