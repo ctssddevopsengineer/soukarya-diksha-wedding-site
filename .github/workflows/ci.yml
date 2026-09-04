@@ -1,15 +1,11 @@
 name: CI
 
 on:
-  push:
-    branches:
-      - feature/phase2b
   pull_request:
     branches:
       - development
       - master
       - release/**
-  workflow_dispatch:
 
 permissions:
   contents: read
