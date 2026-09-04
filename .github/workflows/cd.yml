@@ -1,88 +1,49 @@
-# Sample workflow for building and deploying a Next.js site to GitHub Pages
-#
-# To get started with Next.js see: https://nextjs.org/docs/getting-started
-#
+# Build and deploy the statically exported Next.js invitation to GitHub Pages.
 name: Deploy Next.js site to Pages
 
 on:
-  # Runs on pushes targeting the default branch
   push:
-    branches: 
+    branches:
       - development
       - master
+  workflow_dispatch:
 
-# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
   contents: read
   pages: write
   id-token: write
 
-# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
-# However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
 concurrency:
-  group: "pages"
+  group: pages
   cancel-in-progress: true
 
 jobs:
-  # Build job
   build:
     environment:
       name: unt
+    runs-on: ubuntu-latest
     env:
       NEXT_PUBLIC_BASE_PATH: /${{ github.event.repository.name }}
-    runs-on: ubuntu-latest
+
     steps:
       - name: Checkout
         uses: actions/checkout@v7
 
-      - name: Detect package manager
-        id: detect-package-manager
-        run: |
-          if [ -f "${{ github.workspace }}/yarn.lock" ]; then
-            echo "manager=yarn" >> $GITHUB_OUTPUT
-            echo "command=install" >> $GITHUB_OUTPUT
-            echo "runner=yarn" >> $GITHUB_OUTPUT
-            exit 0
-          elif [ -f "${{ github.workspace }}/package.json" ]; then
-            echo "manager=npm" >> $GITHUB_OUTPUT
-            echo "command=ci" >> $GITHUB_OUTPUT
-            echo "runner=npx --no-install" >> $GITHUB_OUTPUT
-            exit 0
-          else
-            echo "Unable to determine package manager"
-            exit 1
-          fi
       - name: Setup Node
         uses: actions/setup-node@v7
         with:
           node-version: 24
-          cache: ${{ steps.detect-package-manager.outputs.manager }}
+          cache: npm
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
         with:
-          # Automatically inject basePath in your Next.js configuration file and disable
-          # server side image optimization (https://nextjs.org/docs/api-reference/next/image#unoptimized).
-          #
-          # You may remove this line if you want to manage the configuration yourself.
           static_site_generator: next
-      - name: Restore cache
-        uses: actions/cache@v5
-        with:
-          path: |
-            .next/cache
-            ~/.npm
-          # Generate a new cache whenever packages or source files change.
-          key: npm-${{ runner.os }}-${{ hashFiles('**/package.json') }}
-          # If source files changed but packages didn't, rebuild from a prior cache.
-          restore-keys: |
-            npm-${{ runner.os }}-
-            npm-
-      
-      - name: Install dependencies
-        run: ${{ steps.detect-package-manager.outputs.manager }} ${{ steps.detect-package-manager.outputs.command }}
 
-      - name: Replace invitation placeholders
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Render invitation configuration
         env:
           EVENT_TIMEZONE: ${{ vars.EVENT_TIMEZONE }}
           EVENT_TIMEZONE_OFFSET: ${{ vars.EVENT_TIMEZONE_OFFSET }}
@@ -101,18 +62,25 @@ jobs:
           GROOM_FAMILY_PHONE_NUMBER: ${{ vars.GROOM_FAMILY_PHONE_NUMBER }}
           BRIDE_FAMILY_CONTACT_NAME: ${{ vars.BRIDE_FAMILY_CONTACT_NAME }}
           BRIDE_FAMILY_PHONE_NUMBER: ${{ vars.BRIDE_FAMILY_PHONE_NUMBER }}
-        run: |
-          node scripts/render-event-config.mjs
-      
-      - name: Build with Next.js
-        run: ${{ steps.detect-package-manager.outputs.runner }} next build
-      
-      - name: Upload artifact
+        run: npm run config:render
+
+      - name: Run tests
+        run: npm test
+
+      - name: Run Phase 2B tests
+        run: npm run test:phase2b
+
+      - name: Build static export
+        run: npm run build
+
+      - name: Validate GitHub Pages export
+        run: npm run validate:export
+
+      - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v5
         with:
           path: ./out
 
-  # Deployment job
   deploy:
     environment:
       name: github-pages
