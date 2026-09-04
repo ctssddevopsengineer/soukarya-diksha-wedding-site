@@ -21,7 +21,7 @@ export default function InsideLeft({ themeId }) {
           <img
             className="familyMonogramArtwork"
             src={insideLeftMonogram}
-            alt={`${EVENT.groomName} and ${EVENT.brideName} monogram`}
+            alt={`${EVENT.couple} monogram`}
           />
         )}
 
@@ -34,6 +34,12 @@ export default function InsideLeft({ themeId }) {
             ))}
           </p>
         </section>
+
+        <p className="familyCoupleNames" aria-label={EVENT.couple}>
+          <span>{EVENT.groomName}</span>
+          <b aria-hidden="true">&amp;</b>
+          <span>{EVENT.brideName}</span>
+        </p>
 
         <div className="familyGoldDivider familyNamesDivider" aria-hidden="true"><span>✥</span></div>
 

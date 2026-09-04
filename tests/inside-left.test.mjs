@@ -22,6 +22,13 @@ test('InsideLeft reads all person-specific values from EVENT', () => {
   assert.match(component, /EVENT\.families\.bride\.mother/);
 });
 
+test('InsideLeft visibly renders the configured couple names', () => {
+  assert.match(component, /className="familyCoupleNames"/);
+  assert.match(component, /<span>\{EVENT\.groomName\}<\/span>/);
+  assert.match(component, /<span>\{EVENT\.brideName\}<\/span>/);
+  assert.match(component, /aria-label=\{EVENT\.couple\}/);
+});
+
 test('InsideLeft reads all page copy from EVENT.insideLeft', () => {
   assert.match(component, /EVENT\.insideLeft/);
   assert.match(component, /copy\.heading/);
