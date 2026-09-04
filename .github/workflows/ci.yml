@@ -82,6 +82,6 @@ jobs:
       - name: Upload build artifact
         uses: actions/upload-artifact@v7
         with:
-          name: github-pages-compatible-export
+          name: github-pages
           path: out/
           if-no-files-found: error
