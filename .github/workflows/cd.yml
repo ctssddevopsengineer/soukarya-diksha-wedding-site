@@ -50,17 +50,24 @@ jobs:
         run: test -f out/index.html
 
       - name: Upload build artifacts
+        if: false
         uses: actions/upload-artifact@v7
         with:
           name: build-artifacts
           path: out/
           retention-days: 1
+      
+      - name: upload pages artifact
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: out/
 
   deploy:
     name: Deploy to GitHub Pages
     runs-on: ubuntu-latest
     needs: build
-    timeout-minutes: 15
+    environment: unt
+    timeout-minutes: 10
 
     steps:
       - name: Checkout
@@ -69,7 +76,30 @@ jobs:
       - name: Download build artifacts
         uses: actions/download-artifact@v7
         with:
-          name: build-artifacts
+          name: github-pages
+    
+      - name: replace placeholders in event.mjs
+        run: |
+          # using a loop and regex
+            for file in lib/event.mjs; do
+                sed -i "s|{{GOOGLE_MAPS_URL}}|${{ vars.GOOGLE_MAPS_URL }}|g" "$file"
+                sed -i "s|{{VENUE_NAME}}|${{ vars.VENUE_NAME }}|g" "$file"
+                sed -i "s|{{VENUE_ADDRESS}}|${{ vars.VENUE_ADDRESS }}|g" "$file"
+                sed -i "s|{{GROOM_NAME}}|${{ vars.GROOM_NAME }}|g" "$file"
+                sed -i "s|{{BRIDE_NAME}}|${{ vars.BRIDE_NAME }}|g" "$file"
+                sed -i "s|{{GROOM_FATHER_NAME}}|${{ vars.GROOM_FATHER_NAME }}|g" "$file"
+                sed -i "s|{{GROOM_MOTHER_NAME}}|${{ vars.GROOM_MOTHER_NAME }}|g" "$file"
+                sed -i "s|{{BRIDE_FATHER_NAME}}|${{ vars.BRIDE_FATHER_NAME }}|g" "$file"
+                sed -i "s|{{BRIDE_MOTHER_NAME}}|${{ vars.BRIDE_MOTHER_NAME }}|g" "$file"
+                sed -i "s|{{GROOM_FAMILY_CONTACT_NAME}}|${{ vars.GROOM_FAMILY_CONTACT_NAME }}|g" "$file"
+                sed -i "s|{{GROOM_FAMILY_PHONE_NUMBER}}|${{ vars.GROOM_FAMILY_PHONE_NUMBER }}|g" "$file"
+                sed -i "s|{{BRIDE_FAMILY_CONTACT_NAME}}|${{ vars.BRIDE_FAMILY_CONTACT_NAME }}|g" "$file"
+                sed -i "s|{{BRIDE_FAMILY_PHONE_NUMBER}}|${{ vars.BRIDE_FAMILY_PHONE_NUMBER }}|g" "$file"
+                sed -i "s|{{EVENT_TIMEZONE}}|${{ vars.EVENT_TIMEZONE }}|g" "$file"
+                sed -i "s|{{EVENT_TIMEZONE_OFFSET}}|${{ vars.EVENT_TIMEZONE_OFFSET }}|g" "$file"
+                sed -i "s|{{EVENT_START_DATE}}|${{ vars.EVENT_START_DATE }}|g" "$file"
+                sed -i "s|{{EVENT_START_TIME}}|${{ vars.EVENT_START_TIME }}|g" "$file"
+              done
     
       - name: Deploy to GitHub Pages
         uses: actions/deploy-pages@v4
