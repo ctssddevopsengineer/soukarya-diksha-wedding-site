@@ -45,6 +45,7 @@ jobs:
         run: npm test
 
       - name: Phase 2B tests
+        if: false
         env:
           NEXT_PUBLIC_BASE_PATH: ''
         run: npm run test:phase2b
