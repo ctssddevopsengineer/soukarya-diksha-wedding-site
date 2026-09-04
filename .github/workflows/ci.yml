@@ -6,6 +6,7 @@ on:
       - development
       - master
       - release/**
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -19,8 +20,6 @@ jobs:
     name: Tests and GitHub Pages-compatible build
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    env:
-      NEXT_PUBLIC_BASE_PATH: /${{ github.event.repository.name }}
 
     steps:
       - name: Checkout
@@ -35,21 +34,20 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      # Source-level regression tests intentionally run against the repository
-      # template before deployment variables are rendered and without a hosting
-      # base path. This keeps Phase 2A asset-integrity assertions stable.
+      # Run source-level regression tests exactly as they run locally.
+      # Do NOT set a deployment base path here because several Phase 2A tests
+      # intentionally assert canonical /themes/... source paths.
       - name: Unit tests
-        if: false
         env:
           NEXT_PUBLIC_BASE_PATH: ''
         run: npm test
 
       - name: Phase 2B tests
-        if: false
         env:
           NEXT_PUBLIC_BASE_PATH: ''
         run: npm run test:phase2b
 
+      # Render deployment-time invitation values only after source tests pass.
       - name: Render CI invitation configuration
         env:
           EVENT_TIMEZONE: Asia/Kolkata
@@ -71,10 +69,14 @@ jobs:
           BRIDE_FAMILY_PHONE_NUMBER: '+910000000001'
         run: npm run config:render
 
-      - name: Build static export
+      - name: Build GitHub Pages-compatible static export
+        env:
+          NEXT_PUBLIC_BASE_PATH: /${{ github.event.repository.name }}
         run: npm run build
 
       - name: Validate GitHub Pages-compatible export
+        env:
+          NEXT_PUBLIC_BASE_PATH: /${{ github.event.repository.name }}
         run: npm run validate:export
 
       - name: Upload build artifact

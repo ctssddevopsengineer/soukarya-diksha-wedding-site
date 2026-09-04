@@ -44,5 +44,8 @@ test('Next configuration accepts an explicit deployment base path', () => {
 test('GitHub Pages workflow exports and validates repository-scoped paths', () => {
   const workflow = fs.readFileSync(new URL('../.github/workflows/cd.yml', import.meta.url), 'utf8');
   assert.match(workflow, /NEXT_PUBLIC_BASE_PATH: \/\$\{\{ github\.event\.repository\.name \}\}/);
-  assert.match(workflow, /path: \.\/out/);
+
+  // GitHub Actions treats both `out/` and `./out` as the same relative path.
+  // Keep this assertion focused on the actual requirement instead of formatting.
+  assert.match(workflow, /path:\s+(?:\.\/)?out\/?/);
 });
