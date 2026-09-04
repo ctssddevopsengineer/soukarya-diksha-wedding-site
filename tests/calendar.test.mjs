@@ -3,11 +3,12 @@ import assert from 'node:assert/strict';
 import { buildGoogleCalendarUrl, buildIcs, escapeIcsText, toUtcCalendarStamp } from '../lib/calendar.mjs';
 
 const event = {
-  title: 'Soukarya & Diksha — Wedding Reception',
+  title: 'Alex & Taylor — Wedding Reception',
+  couple: 'Alex & Taylor',
   start: '2027-01-18T18:30:00+05:30',
   end: '2027-01-18T22:30:00+05:30',
-  venueName: 'Venue',
-  venueAddress: 'Kolkata, India',
+  venueName: 'Sample Venue',
+  venueAddress: 'Sample City, India',
   mapsUrl: 'https://maps.example.test',
   description: 'Join us, with love; and blessings.'
 };
@@ -24,9 +25,11 @@ test('escapes ICS reserved punctuation', () => {
   assert.equal(escapeIcsText('A, B; C\\D'), 'A\\, B\\; C\\\\D');
 });
 
-test('builds valid VCALENDAR envelope', () => {
+test('builds valid VCALENDAR envelope with generic product metadata', () => {
   const ics = buildIcs(event);
   assert.match(ics, /BEGIN:VCALENDAR/);
+  assert.match(ics, /PRODID:-\/\/Wedding Invitation\/\/Reception\/\/EN/);
+  assert.match(ics, /UID:alex-taylor-reception@digital-invitation/);
   assert.match(ics, /DTSTART:20270118T130000Z/);
   assert.match(ics, /END:VCALENDAR/);
 });
