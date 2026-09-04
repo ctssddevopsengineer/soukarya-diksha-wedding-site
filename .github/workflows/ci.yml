@@ -33,14 +33,13 @@ jobs:
         id: cache-dependencies
         uses: actions/cache@v5
         with:
-          key: npm-${{ runner.os }}-${{ hashFiles('**/package.json') }}
+          key: npm-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
           path: ~/.npm
           restore-keys: |
             npm-${{ runner.os }}-
             npm
-      
+
       - name: Install dependencies
-        if: ${{ steps.cache-dependencies.outputs.cache-hit != 'true' }}
         run: |
           if [ -f package-lock.json ]; then npm ci; else npm install; fi
 
@@ -49,10 +48,10 @@ jobs:
 
       - name: Build
         run: npm run build
-      
+
       - name: List workspace files
         run: ls -R
-      
+
       - name: Upload build artifacts
         uses: actions/upload-artifact@v7
         with:
