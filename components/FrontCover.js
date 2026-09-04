@@ -7,7 +7,11 @@ export default function FrontCover({ onOpen, themeId }) {
 
   return (
     <article className="invitePage frontCover" aria-label="Front cover">
-      <img className="coverArtwork" src={getThemeAsset(themeId, 'front')} alt="Soukarya and Diksha reception invitation artwork" />
+      <img
+        className="coverArtwork"
+        src={getThemeAsset(themeId, 'front')}
+        alt={`${EVENT.couple} reception invitation artwork`}
+      />
 
       {theme.dynamicFront && (
         <section className="dynamicFrontCopy" aria-label="Reception invitation cover text">
@@ -15,7 +19,7 @@ export default function FrontCover({ onOpen, themeId }) {
             <img
               className="dynamicFrontMonogram"
               src={frontMonogram}
-              alt={`${EVENT.groomName} and ${EVENT.brideName} monogram`}
+              alt={`${EVENT.couple} monogram`}
             />
           )}
           <h1 className="dynamicFrontHeading">
