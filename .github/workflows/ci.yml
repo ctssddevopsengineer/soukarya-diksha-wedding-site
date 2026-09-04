@@ -50,23 +50,23 @@ jobs:
       # can be rendered and exported. Production values come from environment vars.
       - name: Render CI invitation configuration
         env:
-          EVENT_TIMEZONE: Asia/Kolkata
-          EVENT_TIMEZONE_OFFSET: +05:30
-          EVENT_START_DATE: '2027-01-23'
-          EVENT_START_TIME: '19:00:00'
-          GOOGLE_MAPS_URL: https://maps.example.test/venue
-          VENUE_NAME: Sample Venue
-          VENUE_ADDRESS: Sample Address, Sample City, India
-          GROOM_NAME: Groom
-          BRIDE_NAME: Bride
-          GROOM_FATHER_NAME: Groom Father
-          GROOM_MOTHER_NAME: Groom Mother
-          BRIDE_FATHER_NAME: Bride Father
-          BRIDE_MOTHER_NAME: Bride Mother
-          GROOM_FAMILY_CONTACT_NAME: Groom Family Contact
-          GROOM_FAMILY_PHONE_NUMBER: '+910000000000'
-          BRIDE_FAMILY_CONTACT_NAME: Bride Family Contact
-          BRIDE_FAMILY_PHONE_NUMBER: '+910000000001'
+          EVENT_TIMEZONE: ${{ vars.EVENT_TIMEZONE }}
+          EVENT_TIMEZONE_OFFSET: ${{ vars.EVENT_TIMEZONE_OFFSET }}
+          EVENT_START_DATE: ${{ vars.EVENT_START_DATE }}
+          EVENT_START_TIME: ${{ vars.EVENT_START_TIME }}
+          GOOGLE_MAPS_URL: ${{ vars.GOOGLE_MAPS_URL }}
+          VENUE_NAME: ${{ vars.VENUE_NAME }}
+          VENUE_ADDRESS: ${{ vars.VENUE_ADDRESS }}
+          GROOM_NAME: ${{ vars.GROOM_NAME }}
+          BRIDE_NAME: ${{ vars.BRIDE_NAME }}
+          GROOM_FATHER_NAME: ${{ vars.GROOM_FATHER_NAME }}
+          GROOM_MOTHER_NAME: ${{ vars.GROOM_MOTHER_NAME }}
+          BRIDE_FATHER_NAME: ${{ vars.BRIDE_FATHER_NAME }}
+          BRIDE_MOTHER_NAME: ${{ vars.BRIDE_MOTHER_NAME }}
+          GROOM_FAMILY_CONTACT_NAME: ${{ vars.GROOM_FAMILY_CONTACT_NAME }}
+          GROOM_FAMILY_PHONE_NUMBER: ${{ vars.GROOM_FAMILY_PHONE_NUMBER }}
+          BRIDE_FAMILY_CONTACT_NAME: ${{ vars.BRIDE_FAMILY_CONTACT_NAME }}
+          BRIDE_FAMILY_PHONE_NUMBER: ${{ vars.BRIDE_FAMILY_PHONE_NUMBER }}
         run: npm run config:render
 
       - name: Build GitHub Pages-compatible static export
