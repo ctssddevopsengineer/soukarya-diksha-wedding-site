@@ -12,6 +12,14 @@ function toSafeFilePart(value) {
 }
 
 export default function CalendarButtons() {
+  const hasValidDates = [EVENT.start, EVENT.end].every(
+    (value) => value instanceof Date && !Number.isNaN(value.getTime())
+  );
+
+  if (!hasValidDates) {
+    return <p className="muted">Calendar details will be available soon.</p>;
+  }
+
   const googleUrl = buildGoogleCalendarUrl(EVENT);
 
   function downloadIcs() {
